@@ -1,0 +1,143 @@
+---
+title: "HW1-DSC190"
+output:
+  html_document: default
+  pdf_document: default
+date: "2024-10-07"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE,echo = TRUE)
+#tinytex::install_tinytex()
+```
+
+Question 2
+
+Firstly, we need to read the data and save it in 'babies':
+```{r}
+babies <- read.table("babies.txt", header = TRUE)
+head(babies)
+```
+
+Next, we will separate the dataset into babies(their birth weights)who born to smoker mothers and non-smoker mothers:
+```{r}
+smokers <- babies$bwt[babies$smoke == 1]
+nonsmokers <- babies$bwt[babies$smoke == 0]
+```
+
+a. Then we need to find the maximum and minimum birth weights of babies from smoker moms and non-smoker mom:
+
+```{r}
+smoker_max_bwt <- max(smokers)
+cat("Maximum birth weight for babies from smoker mom:", smoker_max_bwt, "ounces\n")
+```
+
+```{r}
+smoker_min_bwt <- min(smokers)
+cat("Minimum birth weight for babies from smoker mom:", smoker_min_bwt, "ounces\n")
+```
+
+```{r}
+nonsmoker_max_bwt <- max(nonsmokers)
+cat("Maximum birth weight for babies from nonsmoker mom:", nonsmoker_max_bwt, "ounces\n")
+```
+
+```{r}
+nonsmoker_min_bwt <- min(nonsmokers)
+cat("Minimum birth weight for babies from nonsmoker mom:", nonsmoker_min_bwt, "ounces\n")
+```
+
+b. Mean of birth weights for babies from smoker mom and non-smoker mom:
+```{r}
+smoker_mean_bwt <- mean(smokers)
+cat("Mean birth weight for babies from smoker mom:",smoker_mean_bwt,"ounces\n")
+
+nonsmoker_mean_bwt <- mean(nonsmokers)
+cat("Mean birth weight for babies from nonsmoker mom:",nonsmoker_mean_bwt,"ounces\n")
+```
+
+c. Median birth weights for babies from smoker mom and non-smoker mom:
+```{r}
+smoker_median_bwt <- median(smokers)
+cat("Median birth weight for babies from smoker mom:", smoker_median_bwt, "ounces\n")
+
+nonsmoker_median_bwt <- median(nonsmokers)
+cat("Median birth weight for babies from non-smoker mom:", nonsmoker_median_bwt, "ounces\n")
+```
+
+d.
+1.Babies from smoker moms:The mean(114.1095)is slightly lower than the median(115).  This suggests a slight negative skew (left-skewed distribution) in the birth weights of babies from smoker moms. Babies from non-smoker moms:The mean (123.0472) is very close to the median (123). This indicates that the distribution of birth weights for babies from non-smoker moms is approximately symmetric.
+
+e.Quartiles
+```{r}
+smoker_quartiles <- quantile(smokers, probs = c(0.25, 0.5, 0.75))
+smoker_q1_bwt <- smoker_quartiles[1]
+smoker_q2_bwt <- smoker_quartiles[2]
+smoker_q3_bwt <- smoker_quartiles[3]
+cat("Babies from smoker mom:","Q1:", smoker_q1_bwt, "Q2:", smoker_q2_bwt, "Q3:", smoker_q3_bwt, "\n")
+
+nonsmoker_quartiles <- quantile(nonsmokers, probs = c(0.25, 0.5, 0.75))
+nonsmoker_q1_bwt <- nonsmoker_quartiles[1]
+nonsmoker_q2_bwt <- nonsmoker_quartiles[2]
+nonsmoker_q3_bwt <- nonsmoker_quartiles[3]
+cat("Babies from nonsmoker mom:","Q1:", nonsmoker_q1_bwt, "Q2:", nonsmoker_q2_bwt, "Q3:", nonsmoker_q3_bwt, "\n")
+```
+
+f. Standard deviations 
+```{r}
+smoker_std_bwt <- sd(smokers)
+cat("standard deviation for babies from smoker mom", smoker_std_bwt)
+```
+
+```{r}
+nonsmoker_std_bwt <- sd(nonsmokers)
+cat("standard deviation for babies from nonsmoker mom", nonsmoker_std_bwt)
+```
+
+
+
+Question 4
+
+a&b:
+```{r}
+low_bwt_smoker <- mean(smokers < 100) * 100
+low_bwt_nonsmoker <- mean(nonsmokers < 100) * 100
+
+cat("Percentage of low birth weight babies (under 100 ounces):\n")
+cat("Babies from smoker mom:",low_bwt_smoker, "%\n")
+cat("Babies from non-smoker mom:",low_bwt_nonsmoker,"%\n\n")
+
+```
+
+c.How does the change in threshold affects the incidence of low birth weight?
+```{r}
+# Function to calculate percentage of low birth weight babies for different thresholds
+calc_low_bwt_percentage <- function(data, threshold) {
+  mean(data < threshold) * 100
+}
+
+# Calculate percentages for different thresholds
+thresholds <- seq(90, 110, by = 5)
+smoker_percentages <- sapply(thresholds, function(t) calc_low_bwt_percentage(smokers, t))
+nonsmoker_percentages <- sapply(thresholds, function(t) calc_low_bwt_percentage(nonsmokers, t))
+
+
+cat("Percentages of low birth weight babies for different thresholds:\n")
+for (i in seq_along(thresholds)) {
+  cat("Threshold:", thresholds[i], "ounces\n")
+  cat("  Smokers:", round(smoker_percentages[i], 2), "%\n")
+  cat("  Non-smokers:", round(nonsmoker_percentages[i], 2), "%\n")
+}
+```
+As we increase the threshold, we see a larger proportion of babies in both groups, but the increase is more rapid for babies of smoker moms.
+
+d. How does the change affect the comparison between two groups?
+```{r}
+# Calculate the difference in percentages between the birth weight of babies in two groups
+percentage_differences <- smoker_percentages - nonsmoker_percentages
+
+for (i in seq_along(thresholds)) {
+  cat("Threshold:", thresholds[i], "ounces, ","Percentage difference:", round(percentage_differences[i], 2), "%\n")
+}
+```
+As we increase the threshold from 90 to 110 ounces, the absolute difference in percentages between smokers and non-smokers generally increases.At lower thresholds (90-95 ounces), the difference is smaller, suggesting that smoking has a moderate effect on very low birth weights. As the threshold increases, the gap widens significantly.This widening gap indicates that the effect of smoking on birth weight is more significant when we consider a broader range of "low birth weight" definitions.
